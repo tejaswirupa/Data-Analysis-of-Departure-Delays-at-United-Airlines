@@ -1,0 +1,406 @@
+---
+title: 'Project #1'
+author: "Tejaswi Neelapu"
+output: html_document
+date: "2023-10-29"
+---
+```{r}
+library(nycflights13)
+library(tidyverse)
+
+United_Airlines <- flights %>% filter(carrier == "UA") %>% inner_join(weather, by = c("year", "month", "day", "hour", "origin"))
+glimpse(United_Airlines)
+
+```
+
+
+1. Time of day
+
+```{r}
+Time_of_day <- United_Airlines %>% select(dep_time, dep_delay) %>%
+  mutate(time_of_day = case_when(
+    dep_time >= 600 & dep_time < 1200 ~ "Morning",
+    dep_time >= 1200 & dep_time < 1800 ~ "Afternoon",
+    dep_time >= 1800 & dep_time < 2100 ~ "Evening",
+    TRUE ~ "Night"))
+
+Time_of_day
+ggplot(Time_of_day, aes(x = time_of_day, y = dep_delay)) +
+  geom_boxplot(color = "cadetblue") +
+  labs(
+    x = "Time of Day",
+    y = "Departure Delay",
+    title = "Time of Day versus Departure Delays for United Airlines (UA)"
+  )
+summary(Time_of_day)
+```
+
+Comparing by dividing the day into four categories:
+
+Permutation test between Morning and Afternoon:
+
+```{r}
+Time_of_day <- United_Airlines %>% select(dep_time, dep_delay) %>%
+  mutate(time_of_day = case_when(
+    dep_time >= 600 & dep_time < 1200 ~ "Morning",
+    dep_time >= 1200 & dep_time < 1800 ~ "Afternoon"))
+
+Time_of_day <- na.omit(Time_of_day)
+Time_of_day
+
+observed <- mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Morning"]) - mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Afternoon"])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Time_of_day)
+group.1.size = nrow(Time_of_day[Time_of_day$time_of_day == "Morning",])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Time_of_day$dep_delay[index]) - median(Time_of_day$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+Permutation test between Afternoon and Evening:
+
+```{r}
+Time_of_day <- United_Airlines %>% select(dep_time, dep_delay) %>%
+  mutate(time_of_day = case_when(
+    dep_time >= 1200 & dep_time < 1800 ~ "Afternoon",
+    dep_time >= 1800 & dep_time < 2100 ~ "Evening"))
+
+Time_of_day <- na.omit(Time_of_day)
+Time_of_day
+
+observed <- mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Afternoon"]) - mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Evening"])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Time_of_day)
+group.1.size = nrow(Time_of_day[Time_of_day$time_of_day == "Afternoon",])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Time_of_day$dep_delay[index]) - median(Time_of_day$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+Permutation test between Evening and Night:
+
+```{r}
+Time_of_day <- United_Airlines %>% select(dep_time, dep_delay) %>%
+  mutate(time_of_day = case_when(
+    dep_time >= 600 & dep_time < 1200 ~ "Morning",
+    dep_time >= 1200 & dep_time < 1800 ~ "Afternoon",
+    dep_time >= 1800 & dep_time < 2100 ~ "Evening",
+    TRUE ~ "Night"))
+
+Time_of_day <- na.omit(Time_of_day)
+Time_of_day
+
+observed <- mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Evening"]) - mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Night"])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Time_of_day)
+group.1.size = nrow(Time_of_day[Time_of_day$time_of_day == "Evening",])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Time_of_day$dep_delay[index]) - median(Time_of_day$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+Permutation test between Morning and Night:
+
+```{r}
+Time_of_day <- United_Airlines %>% select(dep_time, dep_delay) %>%
+  mutate(time_of_day = case_when(
+    dep_time >= 600 & dep_time < 1200 ~ "Morning",
+    dep_time >= 1200 & dep_time < 1800 ~ "Afternoon",
+    dep_time >= 1800 & dep_time < 2100 ~ "Evening",
+    TRUE ~ "Night"))
+
+Time_of_day <- na.omit(Time_of_day)
+Time_of_day
+
+observed <- mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Morning"]) - mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Night"])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Time_of_day)
+group.1.size = nrow(Time_of_day[Time_of_day$time_of_day == "Morning",])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Time_of_day$dep_delay[index]) - median(Time_of_day$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+Comparing by dividing the day into two categories:
+
+Permutation test between Morning and Night:
+
+```{r}
+Time_of_day <- United_Airlines %>% select(dep_time, dep_delay) %>%
+  mutate(time_of_day = case_when(
+    dep_time >= 600 & dep_time < 1800 ~ "Morning",
+    TRUE ~ "Night"))
+
+Time_of_day <- na.omit(Time_of_day)
+Time_of_day
+
+observed <- mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Morning"]) - mean(Time_of_day$dep_delay[Time_of_day$time_of_day == "Night"])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Time_of_day)
+group.1.size = nrow(Time_of_day[Time_of_day$time_of_day == "Morning",])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Time_of_day$dep_delay[index]) - median(Time_of_day$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+
+2. Time of year
+
+```{r}
+Time_of_year <- United_Airlines %>% select(month, dep_delay) %>%
+  mutate(month = factor(month, labels = month.abb))
+
+Time_of_year
+ggplot(Time_of_year, aes(x = month, y = dep_delay)) +
+  geom_boxplot(color = "cadetblue") +
+  labs(x = "Time of Year",
+       y = "Departure Delay",
+       title = "Time of Year versus Departure Delays for United Airlines (UA)",
+       )
+summary(Time_of_year)
+```
+
+Permutation Test:
+
+```{r}
+Time_of_year <- United_Airlines %>% select(month, dep_delay) %>%
+  mutate(month = case_when( month >5 & month < 10 ~ "Summer",
+                            month <=5 & month >= 10 ~ "Other seasons"))
+
+Time_of_year <- na.omit(Time_of_year)
+Time_of_year
+
+observed <- mean(Time_of_year$dep_delay[Time_of_year$month == "Summer"]) - mean(Time_of_year$dep_delay[Time_of_year$month != "Other seasons"])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Time_of_year)
+group.1.size = nrow(Time_of_year[Time_of_year$month == "Summer",])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Time_of_year$dep_delay[index]) - median(Time_of_year$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+
+3. Temperature
+
+```{r}
+Temperature <- United_Airlines %>% select(temp, dep_delay)
+  
+Temperature
+ggplot(Temperature, aes(x = temp, y = dep_delay)) +
+  geom_point(color = "cadetblue") +
+  labs(
+    x = "Temperature",
+    y = "Departure Delay",
+    title = "Temperature versus Departure Delays for United Airlines (UA)"
+  )
+summary(Temperature)
+```
+
+Permutation Test between lower temperature and higher temperature:
+
+```{r}
+Temperature <- United_Airlines %>% select(temp, dep_delay)
+
+Temperature <- na.omit(Temperature)
+Temperature
+
+observed <- mean(Temperature$dep_delay[Temperature$temp <= 57.92]) - mean(Temperature$dep_delay[Temperature$temp > 57.92])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Temperature)
+group.1.size = nrow(Temperature[Temperature$temp <= 57.92,])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Temperature$dep_delay[index]) - median(Temperature$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+
+4. Wind Speed
+
+```{r}
+Wind_Speed <- United_Airlines %>% select(wind_speed, dep_delay)
+  
+Wind_Speed
+ggplot(Wind_Speed, aes(x = wind_speed, y = dep_delay)) +
+  geom_point(color = "cadetblue") +
+  labs(
+    x = "Wind Speed",
+    y = "Departure Delay",
+    title = "Wind Speed versus Departure Delays for United Airlines (UA)"
+  )
+summary(Wind_Speed)
+```
+
+Permutation Test between lower wind speed and higher wind speed:
+
+```{r}
+Wind_Speed <- United_Airlines %>% select(wind_speed, dep_delay)
+
+Wind_Speed <- na.omit(Wind_Speed)
+Wind_Speed
+
+observed <- mean(Wind_Speed$dep_delay[Wind_Speed$wind_speed <= 9.206]) - mean(Wind_Speed$dep_delay[Wind_Speed$wind_speed > 9.206])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Wind_Speed)
+group.1.size = nrow(Wind_Speed[Wind_Speed$wind_speed <= 9.206,])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Wind_Speed$dep_delay[index]) - median(Wind_Speed$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+
+5. Precipitation
+
+```{r}
+Precipitation <- United_Airlines %>% select(precip, dep_delay)
+
+Precipitation
+ggplot(Precipitation, aes(x = precip, y = dep_delay)) +
+  geom_point(color = "cadetblue") +
+  labs(x = "Precipitation",
+       y = "Departure Delay",
+       title = "Precipitation versus Departure Delays for United Airlines (UA)",
+       )
+summary(Precipitation)
+```
+
+Permutation test between zero and non-zero Precipitation:
+
+```{r}
+Precipitation <- United_Airlines %>% select(precip, dep_delay)
+
+Precipitation <- na.omit(Precipitation)
+Precipitation
+
+observed <- mean(Precipitation$dep_delay[Precipitation$precip <= 0]) - mean(Precipitation$dep_delay[Precipitation$precip > 0])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Precipitation)
+group.1.size = nrow(Precipitation[Precipitation$precip <= 0,])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Precipitation$dep_delay[index]) - median(Precipitation$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result <= observed) + 1) / (N + 1)
+p_value
+```
+
+
+
+6. Visibility
+
+```{r}
+Visibility <- United_Airlines %>% select(visib, dep_delay)
+
+Visibility
+ggplot(Visibility, aes(x = visib, y = dep_delay)) +
+  geom_point(color = "cadetblue") +
+  labs(x = "Visibility",
+       y = "Departure Delay",
+       title = "Visibility versus Departure Delays for United Airlines (UA)",
+       )
+summary(Visibility)
+```
+
+Permutation Test between <10 visibility and >10 visibility:
+
+```{r}
+Visibility <- United_Airlines %>% select(visib, dep_delay)
+
+Visibility <- na.omit(Visibility)
+Visibility
+
+observed <- mean(Visibility$dep_delay[Visibility$visib <= 9.251]) - mean(Visibility$dep_delay[Visibility$visib > 9.251])
+observed
+
+N <- 10^4-1
+
+sample.size = nrow(Visibility)
+group.1.size = nrow(Visibility[Visibility$visib <= 9.251,])
+result <- numeric(N)
+
+for (i in 1:N)
+  {index = sample(sample.size, size=group.1.size, replace = FALSE)
+  result[i] = median(Visibility$dep_delay[index]) - median(Visibility$dep_delay[-index])
+}
+
+p_value <- 2*(sum(result >= observed) + 1) / (N + 1)
+p_value
+```
+
